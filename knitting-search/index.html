@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뜨개 자료실</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧶 뜨개 자료실</h1>
+            <p>대바늘과 코바늘 뜨기 방법을 쉽게 찾아보세요</p>
+        </header>
+
+        <main>
+            <!-- 탭 메뉴 -->
+            <div class="tab-menu">
+                <button class="tab-btn active" data-tab="technique">뜨개질 기법 검색</button>
+                <button class="tab-btn" data-tab="pattern">무료 도안 검색</button>
+            </div>
+
+            <!-- 뜨개질 기법 검색 탭 -->
+            <div id="technique-tab" class="tab-content active">
+                <div class="search-section">
+                    <div class="needle-type">
+                        <label>
+                            <input type="radio" name="needleType" value="knitting" checked>
+                            <span class="radio-custom"></span>
+                            대바늘 (Knitting)
+                        </label>
+                        <label>
+                            <input type="radio" name="needleType" value="crochet">
+                            <span class="radio-custom"></span>
+                            코바늘 (Crochet)
+                        </label>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="검색할 뜨개질 기법이나 패턴을 입력하세요 (예: 메리야스, 코뜨기, 아란무늬)">
+                        <button id="searchBtn">검색</button>
+                    </div>
+
+                    <div class="result-type">
+                        <label>
+                            <input type="checkbox" id="includeVideos" checked>
+                            동영상 (YouTube)
+                        </label>
+                        <label>
+                            <input type="checkbox" id="includeArticles" checked>
+                            글/블로그 게시물
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 무료 도안 검색 탭 -->
+            <div id="pattern-tab" class="tab-content">
+                <div class="search-section">
+                    <div class="needle-type">
+                        <label>
+                            <input type="radio" name="patternNeedleType" value="knitting" checked>
+                            <span class="radio-custom"></span>
+                            대바늘 (Knitting)
+                        </label>
+                        <label>
+                            <input type="radio" name="patternNeedleType" value="crochet">
+                            <span class="radio-custom"></span>
+                            코바늘 (Crochet)
+                        </label>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="patternSearchInput" placeholder="찾고 싶은 도안을 입력하세요 (예: 스웨터, 모자, 가방, 인형)">
+                        <button id="patternSearchBtn">도안 검색</button>
+                    </div>
+
+                    <div class="pattern-category">
+                        <h4>인기 도안 카테고리</h4>
+                        <div class="category-buttons">
+                            <button class="category-btn" data-category="스웨터">스웨터</button>
+                            <button class="category-btn" data-category="모자">모자</button>
+                            <button class="category-btn" data-category="가방">가방</button>
+                            <button class="category-btn" data-category="인형">인형</button>
+                            <button class="category-btn" data-category="담요">담요</button>
+                            <button class="category-btn" data-category="소품">소품</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loadingDiv" class="loading hidden">
+                <div class="spinner"></div>
+                <p>검색 중...</p>
+            </div>
+
+            <div id="resultsDiv" class="results"></div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

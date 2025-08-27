@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>MM/DD 기준 일수 계산기</title>
+  <style>
+    body {
+      font-family: 'Helvetica', 'Apple SD Gothic Neo', sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px 30px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      width: 360px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 20px;
+    }
+
+    .subtext {
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>MM/DD 기준 일수 계산기</h2>
+    <div class="subtext">*올해 년도 기준으로 계산됩니다.</div>
+
+    <label for="start">시작일 (MM/DD):</label>
+    <input type="text" id="start" placeholder="예: 05/16" />
+
+    <label for="end">종료일 (MM/DD):</label>
+    <input type="text" id="end" placeholder="예: 08/14" />
+
+    <button onclick="calculateDays()">계산하기</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateDays() {
+      const resultDiv = document.getElementById("result");
+      const start = document.getElementById("start").value;
+      const end = document.getElementById("end").value;
+      const currentYear = new Date().getFullYear();
+
+      const startDate = new Date(`${currentYear}/${start}`);
+      const endDate = new Date(`${currentYear}/${end}`);
+
+      if (isNaN(startDate) || isNaN(endDate)) {
+        resultDiv.innerHTML = "<span class='error'>올바른 날짜 형식(MM/DD)을 입력해 주세요.</span>";
+        return;
+      }
+
+      const diff = (endDate - startDate) / (1000 * 60 * 60 * 24);
+      resultDiv.innerHTML = `총 ${diff}일입니다.`;
+    }
+  </script>
+</body>
+</html>
