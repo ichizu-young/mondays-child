@@ -8,14 +8,10 @@
   <style>
     :root { --bg:#0b1020; --card:#121935; --muted:#9fb0ff; --text:#e9edff; --accent:#6ea8ff; --accent2:#8be0d4; --error:#ff6b6b; --highlight:#ffd166 }
     *{box-sizing:border-box}
-    html,body{min-height:100%; background-color: var(--bg);}
+    html,body{height:100%}
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;color:var(--text);
-      min-height:100dvh;
-      background:
-        radial-gradient(1200px 800px at 10% 0%, #15204a 0%, var(--bg) 60%),
-        radial-gradient(900px 600px at 90% 10%, #0d1a3d 0%, var(--bg) 70%),
-        linear-gradient(var(--bg), var(--bg));
-      background-repeat:no-repeat;
+      background: radial-gradient(1200px 800px at 10% 0%, #15204a 0%, var(--bg) 60%),
+                  radial-gradient(900px 600px at 90% 10%, #0d1a3d 0%, var(--bg) 70%);
     }
     .wrap{max-width:760px;margin:0 auto;padding:32px 20px 72px}
     header{text-align:center;margin-bottom:24px}
@@ -27,12 +23,6 @@
     .grid{display:grid;gap:14px}
     label{font-size:13px;color:var(--muted)}
     input[type=text], select{width:100%;background:var(--card);border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:12px;padding:12px 14px;font-size:16px;outline:none}
-    /* 드롭다운 화살표 여백/아이콘 커스터마이즈 */
-    select{appearance:none;-webkit-appearance:none;-moz-appearance:none;padding-right:44px;
-      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239fb0ff'><path d='M7 10l5 5 5-5'/></svg>");
-      background-repeat:no-repeat;background-position:right 14px center;background-size:14px 14px}
-    select::-ms-expand{display:none}
-
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
     .date-grid{display:grid;grid-template-columns:2.2fr 1.3fr 1.3fr;gap:8px}
     .btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -42,9 +32,12 @@
 
     .result{margin-top:14px;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);text-align:center}
     .msg{margin-top:8px;font-size:18px;line-height:1.6;font-weight:700;color:var(--highlight)}
-    .img-wrap{margin-top:12px;display:block}
-    .res-img{display:block;margin:0 auto;max-width:100%;height:auto;max-height:460px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.15)}
-    .img-caption{margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4);text-align:right}
+    .img-wrap{margin-top:12px;height:360px;border-radius:12px;border:1px solid rgba(255,255,255,.12);overflow:hidden;background:rgba(0,0,0,.15);position:relative}
+    .res-img{width:100%;height:100%;object-fit:contain;display:block}
+    .res-img.cover{object-fit:cover}
+    /* 캡션은 이미지 아래(겹치지 않도록) */
+    .img-caption{margin-top:8px;font-size:11px;color:rgba(255,255,255,0.45);text-align:right}
+
     .err{color:var(--error)}
 
     details{margin-top:18px}
@@ -52,6 +45,17 @@
     blockquote{margin:8px 0 0;color:var(--muted);border-left:3px solid rgba(255,255,255,.15);padding-left:10px;line-height:1.6}
 
     footer{margin-top:28px;text-align:center;color:var(--muted);font-size:12px}
+
+    /* 드롭다운 화살표 여백 보정(너무 끝으로 붙지 않게) */
+    select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:
+      linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+      linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+      linear-gradient(to right, transparent, transparent);
+      background-position: calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px), 100% 0;
+      background-size: 6px 6px, 6px 6px, 2.5em 100%;
+      background-repeat: no-repeat;
+      padding-right: 40px;
+    }
   </style>
 </head>
 <body>
@@ -114,106 +118,121 @@
     const DAY_NAMES=["일요일","월요일","화요일","수요일","목요일","금요일","토요일"];
     const TRAITS={0:"예쁘고 즐겁고 착하고 밝은",1:"얼굴이 고운",2:"은총이 가득한",3:"슬픔이 많은",4:"먼 길을 갈",5:"사랑 많고 나눔을 잘하는",6:"부지런히 일하는"};
 
-    // === 요일·성별별 이미지 파일 IDs ===
-    const DAY_IMAGE_IDS = {
-      F: {0:["1t6MUnqpwQ3IWpk5LoKKr4A8N84YPRvM9","17cOO_OR3SXLvGzbGRDVl9K_t2gVBpxWw"],1:["1mx4Mwb4e6P6BXK1vGcUtLJRLUCSSLi9C","1toe5hkoQ-cPWPQim9wGSSvTLpSsrgz_v","1HzF_wUtKhCqIrNtjkDJYVIt0cKiyraQN"],2:["1FzOZspz-KDn6AYO94LT3scrQ4v_jiGVu","1AljBE02cH66R6w4J59sN_6T_ttRdrTJ9","1rHNGgHj5mwRqcjF3ohoomln5YgBQd0LI"],3:["1r455ofkLEtYGg3YYANhxt0IKHtw_J7KP","1NIa5RJQrwGuIxZipY-8ksdkqIr5610V5"],4:["11fcFYEj0a2QmvKvJfpCu4K9gl5twGcPV","1KmrfK593CcyzL44DJKYqr_4R4AJMvTsc","13RBoeyxAMq0rElZV0U_XsG0OwYutVf3Q"],5:["1GDqGieBP8yb8zsrOHgqpMFtzi_g5mUC7","15Dqr9BefBR7Ve3aPvwLaTVMKcD-Aahhs","1-uKa_2RaiinbHCG4uJGt2lVAN9WGd9dz"],6:["1kNeE5Am800VwpZGWtMJuhXsqapKTBrxa","126ItuHuK74dLvJGq2boQuDDH6aMUplKC"]},
-      M: {0:["1sE0ggTYUU9Kr4QlDnmR3QCRmeadjS9uV","1jJqvYNfWD9LHQMOkAzOhHvGTLIffFJNV"],1:["1DkLJw4mQPbLoA1DkvNebTlrBM9lBCIqN","18m7lyCQs_y-qh87_QK9Vhr1YIDo2eg1Q"],2:["1MvHt7q2O0QZhZDr0qrJNBlPHLvYfDaZo","17JKmTI4KCKLk5rVMuxxq3OvDVWGfsCPT"],3:["1N3sx6bO7i-40dY7SaBXIPfJvc54K9O5c","1evLzhQ4XB8KaeWSJ6RXqFPAnfbIgeFQ3","13VqCGkR4PQtH9T85Nq6jkuGLeTXElY3H"],4:["1-HAEhSYBRDMdPu77e0ehETOfNRwE7F-2","1VXKSpufvcmqNj3fqUvvsm2kZYUk1Hxtm"],5:["18Q9tF3Ct64gjcs1-0WRLG6JecbWB36BT","1X2xUp3hPM8cylqbAs1NAF_ozr3hiYzR-"],6:["11W103DxwisDPJHA6uU5m9dqOVBZizTf9","1qf1tf_wivtXWz7yf2XJhWFQKgVk88sCT"]}
+    // GitHub images 폴더의 파일명만 보관
+    // F: 여자, M: 남자
+    const DAY_IMAGE_FILES = {
+      F: {
+        0:["Sunday_f1.png","Sunday_f2.png"],
+        1:["Monday_f1.png","Monday_f2.png","Monday_f3.png"],
+        2:["Tuesday_f1.png","Tuesday_f3.png","Tuesday_f4.png"],
+        3:["Wednesday_f1.png","Wednesday_f2.png"],
+        4:["Thursday_f1.png","Thursday_f2.png","Thursday_f3.png"],
+        5:["Friday_f1.png","Friday_f2.png","Friday_f3.png"],
+        6:["Saturday_f1.png","Saturday_f2.png"]
+      },
+      M: {
+        0:["Sunday_m1.png","Sunday_m2.png"],
+        1:["Monday_m1.png","Monday_m2.png"],
+        2:["Tuesday_m1.png","Tuesday_m2.png"],
+        3:["Wednesday_m1.png","Wednesday_m2.png","Wednesday_m3.png"],
+        4:["Thursday_m1.png","Thursday_m2.png"],
+        5:["Friday_m1.png","Friday_m2.png"],
+        6:["Saturday_m1.png","Saturday_m2.png"]
+      }
     };
 
     const $=id=>document.getElementById(id);
     const yEl=$("yyyy"), mEl=$("mm"), dEl=$("dd");
 
     [yEl,mEl,dEl].forEach((el,idx,arr)=>{
-      el.addEventListener('input',()=>{
+      el.addEventListener('input', ()=>{
         el.value=el.value.replace(/\D/g,'');
         if(el.maxLength && el.value.length>=el.maxLength){ const next=arr[idx+1]; if(next) next.focus(); }
       });
       el.addEventListener('keydown',(e)=>{
-        if(e.key==='Backspace' && el.selectionStart===0){ const prev=arr[idx-1]; if(prev){ prev.focus(); prev.selectionStart=prev.selectionEnd=prev.value.length; }}
+        if(e.key==='Backspace'&&el.selectionStart===0){const prev=arr[idx-1];if(prev){prev.focus();prev.selectionStart=prev.selectionEnd=prev.value.length;}}
       });
     });
 
-    [mEl,dEl].forEach(el=>{ el.addEventListener('blur',()=>{ if(el.value.length===1) el.value='0'+el.value; }); });
+    // 월/일 1자리 입력 보정
+    [mEl,dEl].forEach(el=>{
+      el.addEventListener('blur',()=>{
+        if(el.value.length===1){ el.value='0'+el.value; }
+      });
+    });
 
     function parseDateFromFields(){
-      let y=yEl.value.trim(), m=mEl.value.trim(), d=dEl.value.trim();
-      if(m.length===1) m='0'+m; if(d.length===1) d='0'+d;
+      const y=yEl.value, m=mEl.value, d=dEl.value;
       if(y.length!==4||m.length!==2||d.length!==2) return null;
       const yi=+y, mi=+m, di=+d;
-      if(!Number.isFinite(yi)||!Number.isFinite(mi)||!Number.isFinite(di)) return null;
       if(yi<1000||mi<1||mi>12||di<1||di>31) return null;
       const dt=new Date(yi, mi-1, di, 12);
       if(dt.getFullYear()!==yi||dt.getMonth()!==mi-1||dt.getDate()!==di) return null;
-      yEl.value=String(yi); mEl.value=String(mi).padStart(2,'0'); dEl.value=String(di).padStart(2,'0');
       return dt;
     }
 
-    function makeMessage(idx){
-      const day=DAY_NAMES[idx];
-      const trait=TRAITS[idx];
-      return {sentence:`${day}에 태어난 당신은 ${trait} 사람이에요.`};
-    }
-
+    function makeMessage(idx){const day=DAY_NAMES[idx];const trait=TRAITS[idx];return{sentence:`${day}에 태어난 당신은 ${trait} 사람이에요.`};}
     function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)];}
-    function driveViewUrl(fileId){ return `https://drive.google.com/uc?export=view&id=${fileId}` }
-    function driveThumbUrl(fileId){ return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600` }
+
     function imageFor(dayIndex, gender){
-      const list=(DAY_IMAGE_IDS[gender]&&DAY_IMAGE_IDS[gender][dayIndex])||[];
-      if(list.length===0) return null; return pickRandom(list);
+      const list=(DAY_IMAGE_FILES[gender]&&DAY_IMAGE_FILES[gender][dayIndex])||[];
+      if(list.length===0) return null;
+      // 리포지토리 루트의 images 폴더 상대경로
+      return `images/${pickRandom(list)}`;
     }
 
     function showResult(msg, idx, gender){
       const res=$("res");
-      const fileId=imageFor(idx, gender);
-      if(!fileId){ res.innerHTML=`<div class=\"msg\">${msg.sentence}</div>`; return; }
-      const primary=driveThumbUrl(fileId);
-      const fallback=driveViewUrl(fileId);
+      const imgUrl=imageFor(idx, gender);
       const alt=`${DAY_NAMES[idx]} ${gender==='F'?'여자':'남자'} 아이 이미지`;
+      if(!imgUrl){ res.innerHTML=`<div class="msg">${msg.sentence}</div>`; return; }
       res.innerHTML=`
-        <div class=\"msg\">${msg.sentence}</div>
-        <div class=\"img-wrap\">
-          <img class=\"res-img\" src=\"${primary}\" data-fallback=\"${fallback}\" alt=\"${alt}\" referrerpolicy=\"no-referrer\" />
+        <div class="msg">${msg.sentence}</div>
+        <div class="img-wrap">
+          <img class="res-img" src="${imgUrl}" alt="${alt}" />
         </div>
-        <div class=\"img-caption\">해당 이미지는 ChatGPT 5로 제작되었습니다.</div>
+        <div class="img-caption">해당 이미지는 ChatGPT 5로 제작되었습니다.</div>
       `;
       const img=res.querySelector('img.res-img');
-      img.onerror=function(){
-        if(this.dataset.fallback && this.src!==this.dataset.fallback){ this.src=this.dataset.fallback; this.dataset.fallback=''; }
-        else { this.replaceWith(Object.assign(document.createElement('div'),{className:'err',textContent:'이미지를 불러오지 못했어요.'})); }
-      };
+      img.onerror=function(){ this.replaceWith(Object.assign(document.createElement('div'),{className:'err',textContent:'이미지를 불러오지 못했어요.'})); };
     }
 
     $("checkBtn").addEventListener("click",()=>{
-      const btn=$("checkBtn"); const res=$("res"); const genderSel=$("gender");
+      const btn=$("checkBtn");
+      const res=$("res");
+      const genderSel=$("gender");
       try{
-        btn.disabled=true; btn.textContent='조회 중...';
+        btn.disabled=true;btn.textContent='조회 중...';
         if(mEl.value.length===1) mEl.value = mEl.value.padStart(2,'0');
         if(dEl.value.length===1) dEl.value = dEl.value.padStart(2,'0');
-        const dt = parseDateFromFields();
-        const gender = genderSel ? genderSel.value : 'F';
-        if(!dt){ res.innerHTML='<div class="msg err">유효한 날짜를 입력해 주세요.</div>'; return; }
-        const y=String(dt.getFullYear());
+
+        const dt=parseDateFromFields();
+        const gender=genderSel?genderSel.value:'F';
+        if(!dt){res.innerHTML=`<div class="msg err">유효한 날짜를 입력해 주세요.</div>`;return;}
+        const y=dt.getFullYear();
         const m=String(dt.getMonth()+1).padStart(2,'0');
         const d=String(dt.getDate()).padStart(2,'0');
-        yEl.value=y; mEl.value=m; dEl.value=d;
-        const idx = dt.getDay();
-        showResult(makeMessage(idx), idx, gender);
-        history.replaceState(null,'','#'+y+'-'+m+'-'+d);
-      }catch(e){ console.error(e); res.innerHTML='<div class="msg err">오류가 발생했어요.</div>'; }
-      finally{ btn.disabled=false; btn.textContent='조회하기'; }
+        yEl.value=String(y); mEl.value=m; dEl.value=d;
+
+        const idx=dt.getDay();
+        const msg=makeMessage(idx);
+        showResult(msg,idx,gender);
+        history.replaceState(null,"",`#${y}-${m}-${d}`);
+      }catch(e){console.error(e);res.innerHTML=`<div class="msg err">오류가 발생했어요.</div>`;}finally{btn.disabled=false;btn.textContent='조회하기';}
     });
 
     $("resetBtn").addEventListener("click",()=>{
-      [yEl,mEl,dEl].forEach(function(el){el.value='';}); var g=$("gender"); if(g) g.value='F';
-      $("res").innerHTML='<div class="msg">생년월일과 성별을 입력하고 <b>조회하기</b>를 눌러주세요.</div>';
-      history.replaceState(null,'',location.pathname);
-      yEl.focus();
+      [yEl,mEl,dEl].forEach(el=>el.value='');const g=$("gender");if(g)g.value='F';
+      $("res").innerHTML=`<div class="msg">생년월일과 성별을 입력하고 <b>조회하기</b>를 눌러주세요.</div>`;
+      history.replaceState(null,"",location.pathname);yEl.focus();
     });
 
+    // 해시로 YYYY-MM-DD 들어오면 자동 채우기
     (function initFromHash(){
-      var h=(location.hash||'').replace('#','');
-      var parts=h.split('-');
-      if(parts.length===3){ yEl.value=parts[0]; mEl.value=parts[1]; dEl.value=parts[2]; }
+      const h=decodeURIComponent(location.hash.replace('#','')).trim();
+      const m=h.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if(!m) return;
+      yEl.value=m[1]; mEl.value=m[2]; dEl.value=m[3];
     })();
   </script>
 </body>
