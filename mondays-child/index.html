@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monday's Child</title>
+  <meta name="description" content="나는 어느 요일에 태어난 아이일까요?" />
+  <style>
+    :root { --bg:#0b1020; --card:#121935; --muted:#9fb0ff; --text:#e9edff; --accent:#6ea8ff; --accent2:#8be0d4; --error:#ff6b6b; --highlight:#ffd166 }
+    *{box-sizing:border-box}
+    html,body{min-height:100%; background-color: var(--bg);}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;color:var(--text);
+      min-height:100dvh;
+      background:
+        radial-gradient(1200px 800px at 10% 0%, #15204a 0%, var(--bg) 60%),
+        radial-gradient(900px 600px at 90% 10%, #0d1a3d 0%, var(--bg) 70%),
+        linear-gradient(var(--bg), var(--bg));
+      background-repeat:no-repeat;
+    }
+    .wrap{max-width:760px;margin:0 auto;padding:32px 20px 72px}
+    header{text-align:center;margin-bottom:24px}
+    h1{font-size:clamp(22px,3.2vw,32px);margin:0 0 6px}
+    .lead{color:var(--muted);font-size:14px;margin:0}
+
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px);border-radius:16px;padding:18px;box-shadow:0 12px 32px rgba(0,0,0,.25)}
+    .grid{display:grid;gap:14px}
+    label{font-size:13px;color:var(--muted)}
+    input[type=text], select{width:100%;background:var(--card);border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:12px;padding:12px 14px;font-size:16px;outline:none}
+    /* 드롭다운 화살표 여백/아이콘 커스터마이즈 */
+    select{appearance:none;-webkit-appearance:none;-moz-appearance:none;padding-right:44px;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239fb0ff'><path d='M7 10l5 5 5-5'/></svg>");
+      background-repeat:no-repeat;background-position:right 14px center;background-size:14px 14px}
+    select::-ms-expand{display:none}
+
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+    .date-grid{display:grid;grid-template-columns:2.2fr 1.3fr 1.3fr;gap:8px}
+    .btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    button{border:0;cursor:pointer;border-radius:12px;padding:12px 16px;font-weight:600;font-size:14px;letter-spacing:.2px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b1020;box-shadow:0 6px 18px rgba(110,168,255,.35)}
+    button.secondary{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,.16);box-shadow:none}
+    button.small{padding:8px 10px;font-size:12px;border-radius:10px}
+
+    .result{margin-top:14px;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);text-align:center}
+    .msg{margin-top:8px;font-size:18px;line-height:1.6;font-weight:700;color:var(--highlight)}
+    .img-wrap{margin-top:12px;display:block}
+    .res-img{display:block;margin:0 auto;max-width:100%;height:auto;max-height:460px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.15)}
+    .img-caption{margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4);text-align:right}
+    .err{color:var(--error)}
+
+    details{margin-top:18px}
+    summary{cursor:pointer;color:var(--muted)}
+    blockquote{margin:8px 0 0;color:var(--muted);border-left:3px solid rgba(255,255,255,.15);padding-left:10px;line-height:1.6}
+
+    footer{margin-top:28px;text-align:center;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Monday's Child</h1>
+      <p class="lead">나는 어느 요일에 태어난 아이일까요?</p>
+    </header>
+
+    <section class="card">
+      <div class="grid">
+        <div class="row">
+          <div>
+            <label for="yyyy">생년월일</label>
+            <div class="date-grid">
+              <input id="yyyy" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4" aria-label="년(4자리)" />
+              <input id="mm" type="text" inputmode="numeric" placeholder="MM" maxlength="2" aria-label="월(2자리)" />
+              <input id="dd" type="text" inputmode="numeric" placeholder="DD" maxlength="2" aria-label="일(2자리)" />
+            </div>
+          </div>
+          <div>
+            <label for="gender">성별</label>
+            <select id="gender">
+              <option value="F">여자</option>
+              <option value="M">남자</option>
+            </select>
+          </div>
+        </div>
+        <div class="btns">
+          <button id="checkBtn" aria-describedby="res">조회하기</button>
+          <button class="secondary" id="resetBtn">초기화</button>
+        </div>
+
+        <div id="res" class="result" aria-live="polite">
+          <div class="msg">생년월일과 성별을 입력하고 <b>조회하기</b>를 눌러주세요.</div>
+        </div>
+
+        <details>
+          <summary>Mother Goose: Monday’s Child 원문 보기</summary>
+          <blockquote>
+            Monday’s child is fair of face,<br />
+            Tuesday’s child is full of grace,<br />
+            Wednesday’s child is full of woe,<br />
+            Thursday’s child has far to go,<br />
+            Friday’s child is loving and giving,<br />
+            Saturday’s child works hard for a living,<br />
+            But the child that is born on the Sabbath day<br />
+            Is bonny and blithe, and good and gay.
+          </blockquote>
+        </details>
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2025 Monday’s Child — 요일 계산은 로컬(브라우저) 시간대로 수행됩니다.</p>
+    </footer>
+  </div>
+
+  <script>
+    const DAY_NAMES=["일요일","월요일","화요일","수요일","목요일","금요일","토요일"];
+    const TRAITS={0:"예쁘고 즐겁고 착하고 밝은",1:"얼굴이 고운",2:"은총이 가득한",3:"슬픔이 많은",4:"먼 길을 갈",5:"사랑 많고 나눔을 잘하는",6:"부지런히 일하는"};
+
+    // === 요일·성별별 이미지 파일 IDs ===
+    const DAY_IMAGE_IDS = {
+      F: {0:["1t6MUnqpwQ3IWpk5LoKKr4A8N84YPRvM9","17cOO_OR3SXLvGzbGRDVl9K_t2gVBpxWw"],1:["1mx4Mwb4e6P6BXK1vGcUtLJRLUCSSLi9C","1toe5hkoQ-cPWPQim9wGSSvTLpSsrgz_v","1HzF_wUtKhCqIrNtjkDJYVIt0cKiyraQN"],2:["1FzOZspz-KDn6AYO94LT3scrQ4v_jiGVu","1AljBE02cH66R6w4J59sN_6T_ttRdrTJ9","1rHNGgHj5mwRqcjF3ohoomln5YgBQd0LI"],3:["1r455ofkLEtYGg3YYANhxt0IKHtw_J7KP","1NIa5RJQrwGuIxZipY-8ksdkqIr5610V5"],4:["11fcFYEj0a2QmvKvJfpCu4K9gl5twGcPV","1KmrfK593CcyzL44DJKYqr_4R4AJMvTsc","13RBoeyxAMq0rElZV0U_XsG0OwYutVf3Q"],5:["1GDqGieBP8yb8zsrOHgqpMFtzi_g5mUC7","15Dqr9BefBR7Ve3aPvwLaTVMKcD-Aahhs","1-uKa_2RaiinbHCG4uJGt2lVAN9WGd9dz"],6:["1kNeE5Am800VwpZGWtMJuhXsqapKTBrxa","126ItuHuK74dLvJGq2boQuDDH6aMUplKC"]},
+      M: {0:["1sE0ggTYUU9Kr4QlDnmR3QCRmeadjS9uV","1jJqvYNfWD9LHQMOkAzOhHvGTLIffFJNV"],1:["1DkLJw4mQPbLoA1DkvNebTlrBM9lBCIqN","18m7lyCQs_y-qh87_QK9Vhr1YIDo2eg1Q"],2:["1MvHt7q2O0QZhZDr0qrJNBlPHLvYfDaZo","17JKmTI4KCKLk5rVMuxxq3OvDVWGfsCPT"],3:["1N3sx6bO7i-40dY7SaBXIPfJvc54K9O5c","1evLzhQ4XB8KaeWSJ6RXqFPAnfbIgeFQ3","13VqCGkR4PQtH9T85Nq6jkuGLeTXElY3H"],4:["1-HAEhSYBRDMdPu77e0ehETOfNRwE7F-2","1VXKSpufvcmqNj3fqUvvsm2kZYUk1Hxtm"],5:["18Q9tF3Ct64gjcs1-0WRLG6JecbWB36BT","1X2xUp3hPM8cylqbAs1NAF_ozr3hiYzR-"],6:["11W103DxwisDPJHA6uU5m9dqOVBZizTf9","1qf1tf_wivtXWz7yf2XJhWFQKgVk88sCT"]}
+    };
+
+    const $=id=>document.getElementById(id);
+    const yEl=$("yyyy"), mEl=$("mm"), dEl=$("dd");
+
+    [yEl,mEl,dEl].forEach((el,idx,arr)=>{
+      el.addEventListener('input',()=>{
+        el.value=el.value.replace(/\D/g,'');
+        if(el.maxLength && el.value.length>=el.maxLength){ const next=arr[idx+1]; if(next) next.focus(); }
+      });
+      el.addEventListener('keydown',(e)=>{
+        if(e.key==='Backspace' && el.selectionStart===0){ const prev=arr[idx-1]; if(prev){ prev.focus(); prev.selectionStart=prev.selectionEnd=prev.value.length; }}
+      });
+    });
+
+    [mEl,dEl].forEach(el=>{ el.addEventListener('blur',()=>{ if(el.value.length===1) el.value='0'+el.value; }); });
+
+    function parseDateFromFields(){
+      let y=yEl.value.trim(), m=mEl.value.trim(), d=dEl.value.trim();
+      if(m.length===1) m='0'+m; if(d.length===1) d='0'+d;
+      if(y.length!==4||m.length!==2||d.length!==2) return null;
+      const yi=+y, mi=+m, di=+d;
+      if(!Number.isFinite(yi)||!Number.isFinite(mi)||!Number.isFinite(di)) return null;
+      if(yi<1000||mi<1||mi>12||di<1||di>31) return null;
+      const dt=new Date(yi, mi-1, di, 12);
+      if(dt.getFullYear()!==yi||dt.getMonth()!==mi-1||dt.getDate()!==di) return null;
+      yEl.value=String(yi); mEl.value=String(mi).padStart(2,'0'); dEl.value=String(di).padStart(2,'0');
+      return dt;
+    }
+
+    function makeMessage(idx){
+      const day=DAY_NAMES[idx];
+      const trait=TRAITS[idx];
+      return {sentence:`${day}에 태어난 당신은 ${trait} 사람이에요.`};
+    }
+
+    function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)];}
+    function driveViewUrl(fileId){ return `https://drive.google.com/uc?export=view&id=${fileId}` }
+    function driveThumbUrl(fileId){ return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600` }
+    function imageFor(dayIndex, gender){
+      const list=(DAY_IMAGE_IDS[gender]&&DAY_IMAGE_IDS[gender][dayIndex])||[];
+      if(list.length===0) return null; return pickRandom(list);
+    }
+
+    function showResult(msg, idx, gender){
+      const res=$("res");
+      const fileId=imageFor(idx, gender);
+      if(!fileId){ res.innerHTML=`<div class=\"msg\">${msg.sentence}</div>`; return; }
+      const primary=driveThumbUrl(fileId);
+      const fallback=driveViewUrl(fileId);
+      const alt=`${DAY_NAMES[idx]} ${gender==='F'?'여자':'남자'} 아이 이미지`;
+      res.innerHTML=`
+        <div class=\"msg\">${msg.sentence}</div>
+        <div class=\"img-wrap\">
+          <img class=\"res-img\" src=\"${primary}\" data-fallback=\"${fallback}\" alt=\"${alt}\" referrerpolicy=\"no-referrer\" />
+        </div>
+        <div class=\"img-caption\">해당 이미지는 ChatGPT 5로 제작되었습니다.</div>
+      `;
+      const img=res.querySelector('img.res-img');
+      img.onerror=function(){
+        if(this.dataset.fallback && this.src!==this.dataset.fallback){ this.src=this.dataset.fallback; this.dataset.fallback=''; }
+        else { this.replaceWith(Object.assign(document.createElement('div'),{className:'err',textContent:'이미지를 불러오지 못했어요.'})); }
+      };
+    }
+
+    $("checkBtn").addEventListener("click",()=>{
+      const btn=$("checkBtn"); const res=$("res"); const genderSel=$("gender");
+      try{
+        btn.disabled=true; btn.textContent='조회 중...';
+        if(mEl.value.length===1) mEl.value = mEl.value.padStart(2,'0');
+        if(dEl.value.length===1) dEl.value = dEl.value.padStart(2,'0');
+        const dt = parseDateFromFields();
+        const gender = genderSel ? genderSel.value : 'F';
+        if(!dt){ res.innerHTML='<div class="msg err">유효한 날짜를 입력해 주세요.</div>'; return; }
+        const y=String(dt.getFullYear());
+        const m=String(dt.getMonth()+1).padStart(2,'0');
+        const d=String(dt.getDate()).padStart(2,'0');
+        yEl.value=y; mEl.value=m; dEl.value=d;
+        const idx = dt.getDay();
+        showResult(makeMessage(idx), idx, gender);
+        history.replaceState(null,'','#'+y+'-'+m+'-'+d);
+      }catch(e){ console.error(e); res.innerHTML='<div class="msg err">오류가 발생했어요.</div>'; }
+      finally{ btn.disabled=false; btn.textContent='조회하기'; }
+    });
+
+    $("resetBtn").addEventListener("click",()=>{
+      [yEl,mEl,dEl].forEach(function(el){el.value='';}); var g=$("gender"); if(g) g.value='F';
+      $("res").innerHTML='<div class="msg">생년월일과 성별을 입력하고 <b>조회하기</b>를 눌러주세요.</div>';
+      history.replaceState(null,'',location.pathname);
+      yEl.focus();
+    });
+
+    (function initFromHash(){
+      var h=(location.hash||'').replace('#','');
+      var parts=h.split('-');
+      if(parts.length===3){ yEl.value=parts[0]; mEl.value=parts[1]; dEl.value=parts[2]; }
+    })();
+  </script>
+</body>
+</html>
